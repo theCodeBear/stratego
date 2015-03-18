@@ -1,0 +1,19 @@
+body * {
+  /* border: 1px solid red; */
+}
+
+.gameSpace {
+  background-color: pink;
+  height: 50px;
+  border: 1px solid black;
+}
+
+.river {
+  background-color: blue;
+}
+
+#gameboard {
+  /* border: 1px solid black; */
+  padding: 0;
+  text-align: center;
+}
