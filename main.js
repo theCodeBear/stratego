@@ -1,7 +1,4 @@
-angular.module('stratego', [])
-
-.controller('game', ['$scope', function($scope) {
-
+$(function() {
   var row = '';
   for (var y=0; y<10; y++) {
     row = $('<div class="row"></div>');
@@ -24,33 +21,44 @@ angular.module('stratego', [])
   var team = teamArray();
   console.log(team);
   setupBoard(team);
-}]);
 
-function setupBoard(team) {
-  var top40 = setTeamBounds(0);
-  var bottom40 = setTeamBounds(60);
-  console.log(top40);
-  console.log(bottom40);
-  initializeMapTeams(team, top40, 'green');
-  initializeMapTeams(team, bottom40, 'orange');
-}
 
-function setTeamBounds(start) {
-  var tempArray = [];
-  for (var a=start; a<start+40; a++) {
-    if (a < 10)
-      tempArray.push('0'+a);
-    else
-      tempArray.push(a.toString());
+
+
+  $('.orange').on('click', function() {
+    console.log(this.id);
+    console.log(this.textContent);
+    $('.orange').removeClass('highlight');
+    $(this).toggleClass('highlight');
+  });
+
+  function setupBoard(team) {
+    var top40 = setTeamBounds(0);
+    var bottom40 = setTeamBounds(60);
+    console.log(top40);
+    console.log(bottom40);
+    initializeMapTeams(team, top40, 'green');
+    initializeMapTeams(team, bottom40, 'orange');
   }
-  return tempArray;
-}
 
-function initializeMapTeams(teamUnitsArr, teamSpaceIds, color) {
-  for (var i=0; i<teamUnitsArr.length; i++) {
-    var index = Math.floor(Math.random() * (teamUnitsArr.length - i));
-    $('#'+teamSpaceIds[index]).text(teamUnitsArr[i]);
-    $('#'+teamSpaceIds[index]).addClass(color);
-    teamSpaceIds.splice(index, 1);
+  function setTeamBounds(start) {
+    var tempArray = [];
+    for (var a=start; a<start+40; a++) {
+      if (a < 10)
+        tempArray.push('0'+a);
+      else
+        tempArray.push(a.toString());
+    }
+    return tempArray;
   }
-}
+
+  function initializeMapTeams(teamUnitsArr, teamSpaceIds, color) {
+    for (var i=0; i<teamUnitsArr.length; i++) {
+      var index = Math.floor(Math.random() * (teamUnitsArr.length - i));
+      $('#'+teamSpaceIds[index]).text(teamUnitsArr[i]);
+      $('#'+teamSpaceIds[index]).addClass(color);
+      teamSpaceIds.splice(index, 1);
+    }
+  }
+
+});

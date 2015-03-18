@@ -24,6 +24,14 @@ body * {
   color: orange;
 }
 
+.orange:hover {
+  cursor: pointer;
+}
+
+.highlight {
+  border: 2px solid yellow;
+}
+
 #gameboard {
   /* border: 1px solid black; */
   margin-top: 2em;
