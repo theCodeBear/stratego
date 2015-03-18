@@ -3,17 +3,30 @@ body * {
 }
 
 .gameSpace {
-  background-color: pink;
+  background-color: #5E2612;
   height: 50px;
   border: 1px solid black;
+  text-align: center;
+  padding: 1em;
+  font-size: 0.9em;
+  font-weight: bold;
 }
 
 .river {
   background-color: blue;
 }
 
+.green {
+  color: green;
+}
+
+.orange {
+  color: orange;
+}
+
 #gameboard {
   /* border: 1px solid black; */
+  margin-top: 2em;
   padding: 0;
   text-align: center;
 }
