@@ -1,10 +1,12 @@
 $(function() {
+  var whosTurn = 'orange';
+  var currentHighlight = '';
   var row = '';
   for (var y=0; y<10; y++) {
     row = $('<div class="row"></div>');
     row.append('<div class="col-md-1 blank"></div>');
     for (var x=0; x<10; x++) {
-      row.append($('<div id="' + y + x + '" class="col-md-1 gameSpace"></div>'));
+      row.append($('<div id="' + (y===0 ? '' : y) + x + '" class="col-md-1 gameSpace"></div>'));
     }
     $('#gameboard').append(row);
   }
@@ -19,24 +21,81 @@ $(function() {
   $('#57').addClass('river');
 
   var team = teamArray();
-  console.log(team);
+  // console.log(team);
   setupBoard(team);
 
 
+  $('.green').toggleClass('notPlayersTurn');
 
 
   $('.orange').on('click', function() {
-    console.log(this.id);
-    console.log(this.textContent);
-    $('.orange').removeClass('highlight');
-    $(this).toggleClass('highlight');
+    if ($(this).attr('class').split(' ').indexOf('notPlayersTurn') === -1) {
+      // console.log(this.id);
+      // console.log(this.textContent);
+      $('.orange').removeClass('highlight');
+      $(this).toggleClass('highlight');
+      highlightPossibleMoves(this);
+      // $('.green').toggleClass('notPlayersTurn');
+      // $('.orange').toggleClass('notPlayersTurn');
+      // $(this).toggleClass('highlight');
+    }
   });
+
+  $('.green').on('click', function() {
+    if ($(this).attr('class').split(' ').indexOf('notPlayersTurn') === -1) {
+      // console.log(this.id);
+      // console.log(this.textContent);
+      $('.green').removeClass('highlight');
+      $(this).toggleClass('highlight');
+      highlightPossibleMoves(this);
+      // $('.orange').toggleClass('notPlayersTurn');
+      // $('.green').toggleClass('notPlayersTurn');
+      // $(this).toggleClass('highlight');
+    }
+  });
+
+  // This is the second user click - clicking where they are moving
+  // $('.gameSpace').on('click', function() {
+  //   // console.log($('.gameSpace').attr('class').split(' '));//.indexOf('highlight'));
+  //   // If player has highlighted a piece and they click on a space that doesn't have one of their pieces
+  //   console.log('clicked on not their piece', !$(this).hasClass(whosTurn));
+  //   console.log('have highlighted one of their pieces', $('.gameSpace').hasClass('highlight'));
+  //   if (!$(this).hasClass(whosTurn) && $('.gameSpace').hasClass('highlight')) {
+  //     console.log(whosTurn);
+  //     console.log($(whosTurn).hasClass('highlight'));
+  //     // $('.highlight').toggleClass('highlight');
+  //     if ($(this).attr('class').split(' ').indexOf('river') === -1)// && $('.gameSpace').attr('class').split(') {
+  //       ;
+  //     // }
+  //     if (whosTurn === 'orange')
+  //       whosTurn = 'green';
+  //     else
+  //       whosTurn = 'orange';
+  //   }
+  // });
+
+  function highlightPossibleMoves(selectedDiv) {
+    $('.gameSpace').removeClass('canMoveTo');
+    var selectedId = selectedDiv.id;
+    var selectedIntId = parseInt(selectedId);
+
+    if (!(selectedId.slice(-1) === '9') && !$('#'+(selectedIntId+1)).hasClass(whosTurn))
+      $('#'+(selectedIntId+1)).addClass('canMoveTo');
+    if (!(selectedId.slice(-1) === '0') && !$('#'+(selectedIntId-1)).hasClass(whosTurn))
+      $('#'+(selectedIntId-1)).addClass('canMoveTo');
+    if (!$('#'+(selectedIntId-10)).hasClass(whosTurn) && !$('#'+(selectedIntId-10)).hasClass('river'))
+      $('#'+(selectedIntId-10)).addClass('canMoveTo');
+    if (!$('#'+(selectedIntId+10)).hasClass(whosTurn) && !$('#'+(selectedIntId+10)).hasClass('river'))
+      $('#'+(selectedIntId+10)).addClass('canMoveTo');
+  }
+
+
 
   function setupBoard(team) {
     var top40 = setTeamBounds(0);
     var bottom40 = setTeamBounds(60);
-    console.log(top40);
-    console.log(bottom40);
+    // console.log(top40);
+    // console.log(bottom40);
     initializeMapTeams(team, top40, 'green');
     initializeMapTeams(team, bottom40, 'orange');
   }
@@ -44,10 +103,7 @@ $(function() {
   function setTeamBounds(start) {
     var tempArray = [];
     for (var a=start; a<start+40; a++) {
-      if (a < 10)
-        tempArray.push('0'+a);
-      else
-        tempArray.push(a.toString());
+      tempArray.push(a.toString());
     }
     return tempArray;
   }
@@ -55,7 +111,7 @@ $(function() {
   function initializeMapTeams(teamUnitsArr, teamSpaceIds, color) {
     for (var i=0; i<teamUnitsArr.length; i++) {
       var index = Math.floor(Math.random() * (teamUnitsArr.length - i));
-      $('#'+teamSpaceIds[index]).text(teamUnitsArr[i]);
+      $('#'+teamSpaceIds[index]).html(teamUnitsArr[i]);
       $('#'+teamSpaceIds[index]).addClass(color);
       teamSpaceIds.splice(index, 1);
     }

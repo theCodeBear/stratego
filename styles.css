@@ -28,8 +28,22 @@ body * {
   cursor: pointer;
 }
 
+.green:hover {
+  cursor: pointer;
+}
+
 .highlight {
-  border: 2px solid yellow;
+  border: 1px solid yellow;
+}
+
+.canMoveTo {
+  border: 1px solid green;
+}
+
+.notPlayersTurn {
+  background-color: gray;
+  color: gray;
+  font-size: 0.1em;
 }
 
 #gameboard {
