@@ -1,5 +1,5 @@
 $(function() {
-  var whosTurn = 'orange';
+  var currentPlayer = 'orange';
   var currentHighlight = '';
   var row = '';
   for (var y=0; y<10; y++) {
@@ -58,37 +58,78 @@ $(function() {
   // $('.gameSpace').on('click', function() {
   //   // console.log($('.gameSpace').attr('class').split(' '));//.indexOf('highlight'));
   //   // If player has highlighted a piece and they click on a space that doesn't have one of their pieces
-  //   console.log('clicked on not their piece', !$(this).hasClass(whosTurn));
+  //   console.log('clicked on not their piece', !$(this).hasClass(currentPlayer));
   //   console.log('have highlighted one of their pieces', $('.gameSpace').hasClass('highlight'));
-  //   if (!$(this).hasClass(whosTurn) && $('.gameSpace').hasClass('highlight')) {
-  //     console.log(whosTurn);
-  //     console.log($(whosTurn).hasClass('highlight'));
+  //   if (!$(this).hasClass(currentPlayer) && $('.gameSpace').hasClass('highlight')) {
+  //     console.log(currentPlayer);
+  //     console.log($(currentPlayer).hasClass('highlight'));
   //     // $('.highlight').toggleClass('highlight');
   //     if ($(this).attr('class').split(' ').indexOf('river') === -1)// && $('.gameSpace').attr('class').split(') {
   //       ;
   //     // }
-  //     if (whosTurn === 'orange')
-  //       whosTurn = 'green';
+  //     if (currentPlayer === 'orange')
+  //       currentPlayer = 'green';
   //     else
-  //       whosTurn = 'orange';
+  //       currentPlayer = 'orange';
   //   }
   // });
 
   function highlightPossibleMoves(selectedDiv) {
-    $('.gameSpace').removeClass('canMoveTo');
-    var selectedId = selectedDiv.id;
-    var selectedIntId = parseInt(selectedId);
+    if (selectedDiv.textContent === 'Scout') {
+      $('.gameSpace').removeClass('canMoveTo');
+      scoutMoveHighlighting(selectedDiv, -1);
+      scoutMoveHighlighting(selectedDiv, 1);
+      scoutMoveHighlighting(selectedDiv, -10);
+      scoutMoveHighlighting(selectedDiv, 10);
+    } else if (selectedDiv.textContent === 'Bomb' || selectedDiv.textContent === 'Flag') {
+      $('.gameSpace').removeClass('canMoveTo');
+    } else {
+      $('.gameSpace').removeClass('canMoveTo');
+      var selectedId = selectedDiv.id;
+      var selectedIntId = parseInt(selectedId);
 
-    if (!(selectedId.slice(-1) === '9') && !$('#'+(selectedIntId+1)).hasClass(whosTurn))
-      $('#'+(selectedIntId+1)).addClass('canMoveTo');
-    if (!(selectedId.slice(-1) === '0') && !$('#'+(selectedIntId-1)).hasClass(whosTurn))
-      $('#'+(selectedIntId-1)).addClass('canMoveTo');
-    if (!$('#'+(selectedIntId-10)).hasClass(whosTurn) && !$('#'+(selectedIntId-10)).hasClass('river'))
-      $('#'+(selectedIntId-10)).addClass('canMoveTo');
-    if (!$('#'+(selectedIntId+10)).hasClass(whosTurn) && !$('#'+(selectedIntId+10)).hasClass('river'))
-      $('#'+(selectedIntId+10)).addClass('canMoveTo');
+      if (!(selectedId.slice(-1) === '9') && !$('#'+(selectedIntId+1)).hasClass(currentPlayer))
+        $('#'+(selectedIntId+1)).addClass('canMoveTo');
+      if (!(selectedId.slice(-1) === '0') && !$('#'+(selectedIntId-1)).hasClass(currentPlayer))
+        $('#'+(selectedIntId-1)).addClass('canMoveTo');
+      if (!$('#'+(selectedIntId-10)).hasClass(currentPlayer) && !$('#'+(selectedIntId-10)).hasClass('river'))
+        $('#'+(selectedIntId-10)).addClass('canMoveTo');
+      if (!$('#'+(selectedIntId+10)).hasClass(currentPlayer) && !$('#'+(selectedIntId+10)).hasClass('river'))
+        $('#'+(selectedIntId+10)).addClass('canMoveTo');
+    }
   }
 
+  function scoutMoveHighlighting(selectedDiv, singleMove) {
+    var selectedIntId = parseInt(selectedDiv.id);
+    var canMove = true;
+    var move = singleMove;
+    var possibleMoveId = 0;
+    do {
+      possibleMoveId = selectedIntId + move;
+      if ((singleMove === -1 || singleMove === 1)) {
+        if (possibleMoveId.toString().slice(-1) === '9' || possibleMoveId.toString().slice(-1) === '0') {
+          canMove = false;
+          break;
+        }
+      }
+      canMove = scoutStopConditions(possibleMoveId);
+      if (canMove)
+        $('#'+(selectedIntId+move)).addClass('canMoveTo');
+      move += singleMove;
+      if (selectedIntId+move < 0 || selectedIntId+move > 99)
+        canMove = false;
+    } while (canMove === true);
+  }
+
+  function scoutStopConditions(possibleMoveId) {
+    if ($('#'+possibleMoveId).hasClass('notPlayersTurn')) {
+      $('#'+possibleMoveId).addClass('canMoveTo')
+      return false;
+    }
+    if ($('#'+possibleMoveId).hasClass('river') || $('#'+possibleMoveId).hasClass(currentPlayer))
+      return false;
+    return true;
+  }
 
 
   function setupBoard(team) {
