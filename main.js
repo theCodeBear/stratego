@@ -25,7 +25,7 @@ $(function() {
   setupBoard(team);
 
 
-  $('.green').toggleClass('notPlayersTurn');
+  $('.green').addClass('notPlayersTurn');
 
 
   $('.orange').on('click', function() {
@@ -55,24 +55,26 @@ $(function() {
   });
 
   // This is the second user click - clicking where they are moving
-  // $('.gameSpace').on('click', function() {
-  //   // console.log($('.gameSpace').attr('class').split(' '));//.indexOf('highlight'));
-  //   // If player has highlighted a piece and they click on a space that doesn't have one of their pieces
-  //   console.log('clicked on not their piece', !$(this).hasClass(currentPlayer));
-  //   console.log('have highlighted one of their pieces', $('.gameSpace').hasClass('highlight'));
-  //   if (!$(this).hasClass(currentPlayer) && $('.gameSpace').hasClass('highlight')) {
-  //     console.log(currentPlayer);
-  //     console.log($(currentPlayer).hasClass('highlight'));
-  //     // $('.highlight').toggleClass('highlight');
-  //     if ($(this).attr('class').split(' ').indexOf('river') === -1)// && $('.gameSpace').attr('class').split(') {
-  //       ;
-  //     // }
-  //     if (currentPlayer === 'orange')
-  //       currentPlayer = 'green';
-  //     else
-  //       currentPlayer = 'orange';
-  //   }
-  // });
+  $('.gameSpace').on('click', function() {
+    // should check if player clicks on a canMoveTo highlighted piece
+    if ($(this).hasClass('canMoveTo')) {
+      $('.highlight').removeClass('highlight');
+      $('.canMoveTo').removeClass('canMoveTo');
+      // if ($(this).attr('class').split(' ').indexOf('river') === -1)// && $('.gameSpace').attr('class').split(') {
+      //   ;
+      // }
+    // Switching turns
+      if (currentPlayer === 'orange') {
+        currentPlayer = 'green';
+        $('.green').removeClass('notPlayersTurn');
+        $('.orange').addClass('notPlayersTurn');
+      } else {
+        currentPlayer = 'orange';
+        $('.orange').removeClass('notPlayersTurn');
+        $('.green').addClass('notPlayersTurn');
+      }
+    }
+  });
 
   function highlightPossibleMoves(selectedDiv) {
     if (selectedDiv.textContent === 'Scout') {
