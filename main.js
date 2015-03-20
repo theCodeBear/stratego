@@ -10,71 +10,138 @@ $(function() {
     }
     $('#gameboard').append(row);
   }
+  // left river
   $('#42').addClass('river');
   $('#43').addClass('river');
   $('#52').addClass('river');
   $('#53').addClass('river');
-
+  // right river
   $('#46').addClass('river');
   $('#47').addClass('river');
   $('#56').addClass('river');
   $('#57').addClass('river');
 
   var team = teamArray();
-  // console.log(team);
   setupBoard(team);
 
 
   $('.green').addClass('notPlayersTurn');
 
 
-  $('.orange').on('click', function() {
-    if ($(this).attr('class').split(' ').indexOf('notPlayersTurn') === -1) {
-      // console.log(this.id);
-      // console.log(this.textContent);
-      $('.orange').removeClass('highlight');
-      $(this).toggleClass('highlight');
-      highlightPossibleMoves(this);
-      // $('.green').toggleClass('notPlayersTurn');
-      // $('.orange').toggleClass('notPlayersTurn');
-      // $(this).toggleClass('highlight');
-    }
-  });
+  $('.orange').on('click', move);
+  $('.green').on('click', move);
+  $('.gameSpace').on('click', chooseMove);
 
-  $('.green').on('click', function() {
+  function move() {
     if ($(this).attr('class').split(' ').indexOf('notPlayersTurn') === -1) {
-      // console.log(this.id);
-      // console.log(this.textContent);
-      $('.green').removeClass('highlight');
+      $('.' + currentPlayer).removeClass('highlight');
       $(this).toggleClass('highlight');
       highlightPossibleMoves(this);
-      // $('.orange').toggleClass('notPlayersTurn');
-      // $('.green').toggleClass('notPlayersTurn');
-      // $(this).toggleClass('highlight');
     }
-  });
+  }
 
   // This is the second user click - clicking where they are moving
-  $('.gameSpace').on('click', function() {
+  function chooseMove() {
     // should check if player clicks on a canMoveTo highlighted piece
     if ($(this).hasClass('canMoveTo')) {
-      $('.highlight').removeClass('highlight');
-      $('.canMoveTo').removeClass('canMoveTo');
-      // if ($(this).attr('class').split(' ').indexOf('river') === -1)// && $('.gameSpace').attr('class').split(') {
-      //   ;
-      // }
     // Switching turns
       if (currentPlayer === 'orange') {
-        currentPlayer = 'green';
-        $('.green').removeClass('notPlayersTurn');
-        $('.orange').addClass('notPlayersTurn');
+        switchTurns(this, 'green');
       } else {
-        currentPlayer = 'orange';
-        $('.orange').removeClass('notPlayersTurn');
-        $('.green').addClass('notPlayersTurn');
+        switchTurns(this, 'orange');
       }
     }
-  });
+  };
+
+  // Takes the space the player is moving to. Switch turns for the player and
+  // initialize the click-move functionality for the unit's new space
+  function switchTurns(piece, nextPlayer) {
+    movePiece(piece);
+    $('.' + currentPlayer).addClass('notPlayersTurn');
+    $('.' + nextPlayer).removeClass('notPlayersTurn');
+    currentPlayer = nextPlayer;
+    $(piece).on('click', move);
+  }
+
+  // Takes selected space to move to, uses highlighted piece to make move
+  function movePiece(moveSpace) {
+    var pieceToMove = $('.highlight');
+    var pieceName = transferPieceData($('.highlight'), moveSpace);
+    $(moveSpace).addClass(currentPlayer);
+    $(moveSpace).html(pieceName);
+    $('.highlight').removeClass('highlight');
+    $('.canMoveTo').removeClass('canMoveTo');
+    // $(moveSpace).on('click', move);
+  }
+
+  // Takes the piece that will be moved, strips its class off and transfers its text content
+  // to the new gameboard space. If there is an opposing player there then battle() is called.
+  function transferPieceData(movingPiece, spaceMovingTo) {
+    var battleResult = '';
+    // if ($(spaceMovingTo).hasClass('notPlayersTurn')) {
+    //   battleResult = battle(piece, spaceMovingTo);
+    // }
+    movingPiece.removeClass(currentPlayer);
+    // if (battleResult === 'attacker') {
+
+    // }
+    var pieceName = movingPiece.html();
+    movingPiece.html('');
+    $(movingPiece).off('click', move);
+    return pieceName;
+  }
+
+  // takes attacker and defender objects, return 'attacker' if attacker wins,
+  // 'defender' if defender wins, 'both' if both die, and 'win' if attacker found the flag.
+  // function battle(attacker, defender) {
+  //   console.log($(defender).text());
+  //   console.log($(attacker).text());
+  //   console.log('NAME: ', $(attacker).html());
+  //   var attackerRank = pieces[$(attacker).text()].rank;
+  //   var defenderRank = pieces[$(defender).text()].rank;
+  //   console.log(attackerRank);
+  //   console.log(defenderRank);
+
+  //   // bomb battle
+  //   if (defenderRank === 'B') {
+  //     if (attackerRank === 8)
+  //       return 'attacker';
+  //     else
+  //       return 'defender';
+  //   }
+
+  //   // spy battle
+  //   if (attackerRank === 'S' || defenderRank === 'S') {
+  //     return spyBattle(attackerRank, defenderRank);
+  //   }
+
+  //   // grab flag
+  //   if (defenderRank === 'F')
+  //     return 'win';
+
+  //   // battles between numerical ranked units
+  //   if (attackerRank > defenderRank)
+  //     return 'attacker';
+  //   else if (attackerRank < defenderRank)
+  //     return 'defender';
+  //   else if (attackerRank === defenderRank)
+  //     return 'both';
+  // }
+
+
+  // Handle if one or both of the participants of a battle is a spy
+  function spyBattle(attackerRank, defenderRank) {
+    if (attackerRank === 'S' && defenderRank === 'S')
+      return 'both';
+    else if (defenderRank === 1)
+      return 'attacker';
+    else if (defenderRank === 'S')
+      return 'attacker';
+    else if (attackerRank === 'S')
+      return 'defender';
+    else
+      console.log('UNFORESEEN SITUATION IN SPY BATTLE');
+  }
 
   function highlightPossibleMoves(selectedDiv) {
     if (selectedDiv.textContent === 'Scout') {
@@ -90,9 +157,9 @@ $(function() {
       var selectedId = selectedDiv.id;
       var selectedIntId = parseInt(selectedId);
 
-      if (!(selectedId.slice(-1) === '9') && !$('#'+(selectedIntId+1)).hasClass(currentPlayer))
+      if (!(selectedId.slice(-1) === '9') && !$('#'+(selectedIntId+1)).hasClass(currentPlayer) && !$('#'+(selectedIntId-1)).hasClass('river'))
         $('#'+(selectedIntId+1)).addClass('canMoveTo');
-      if (!(selectedId.slice(-1) === '0') && !$('#'+(selectedIntId-1)).hasClass(currentPlayer))
+      if (!(selectedId.slice(-1) === '0') && !$('#'+(selectedIntId-1)).hasClass(currentPlayer) && !$('#'+(selectedIntId+1)).hasClass('river'))
         $('#'+(selectedIntId-1)).addClass('canMoveTo');
       if (!$('#'+(selectedIntId-10)).hasClass(currentPlayer) && !$('#'+(selectedIntId-10)).hasClass('river'))
         $('#'+(selectedIntId-10)).addClass('canMoveTo');
